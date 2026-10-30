@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Бізнес Аналіз 02.03.2026 : Use Case &amp; Use Case diagram</title>
+        <link rel="stylesheet" href="styles/site.css" type="text/css" />
+        <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    </head>
+
+    <body class="theme-default aui-theme-default">
+        <div id="page">
+            <div id="main" class="aui-page-panel">
+                <div id="main-header">
+                    <div id="breadcrumb-section">
+                        <ol id="breadcrumbs">
+                            <li class="first">
+                                <span><a href="index.html">Бізнес Аналіз 02.03.2026</a></span>
+                            </li>
+                                                    <li>
+                                <span><a href="154314448.html">Freight Cost Calculator (Antalyk)</a></span>
+                            </li>
+                                                </ol>
+                    </div>
+                    <h1 id="title-heading" class="pagetitle">
+                                                <span id="title-text">
+                            Бізнес Аналіз 02.03.2026 : Use Case &amp; Use Case diagram
+                        </span>
+                    </h1>
+                </div>
+
+                <div id="content" class="view">
+                    <div class="page-metadata">
+                        
+        
+    
+    
+        
+    
+        
+        
+            Created by <span class='author'> Antalyk</span> on Apr 15, 2026
+                        </div>
+                    <div id="main-content" class="wiki-content group">
+                    <p>Use Case: Розрахунок вартості перевезення</p><div class="table-wrap"><table class="confluenceTable"><tbody class=""><tr class=""><td class="confluenceTd"><p><strong>Назва</strong></p></td><td class="confluenceTd"><p>Розрахунок вартості перевезення</p></td></tr><tr class=""><td class="confluenceTd"><p><strong>Короткий опис</strong></p></td><td class="confluenceTd"><p>Логіст вводить параметри перевезення та отримує розраховану вартість рейсу для подальшої передачі клієнту.</p></td></tr><tr class=""><td class="confluenceTd"><p><strong>Primary Actor</strong></p></td><td class="confluenceTd"><p>Логіст (Ірина)</p></td></tr><tr class=""><td class="confluenceTd"><p><strong>Secondary Actors</strong></p></td><td class="confluenceTd"><p>Клієнт</p></td></tr><tr class=""><td class="confluenceTd"><p><strong>Передумови</strong></p></td><td class="confluenceTd"><p>·  Логіст отримав запит на перевезення</p><p>·  Система доступна та відкрита</p><p>·  Логіст має базові дані (точки завантаження/розвантаження)</p></td></tr><tr class=""><td class="confluenceTd"><p><strong>Основний сценарій</strong></p></td><td class="confluenceTd"><p>1. Логіст відкриває систему розрахунку.</p><p>2. Система відображає форму для введення параметрів.</p><p>3. Логіст обирає точку завантаження.</p><p>4. Логіст обирає точку розвантаження.</p><p>5. Система автоматично підтягує можливі маршрути.</p><p>6. Логіст обирає пункт перетину кордону.</p><p>7. Система розраховує відстань маршруту.</p><p>8. Логіст вводить додаткові параметри (витрати, тип транспорту).</p><p>9. Система автоматично виконує розрахунок собівартості.</p><p>10. Система відображає фінальну вартість перевезення.</p><p>11. Логіст переглядає результат.</p><p>12. Логіст підтверджує розрахунок для подальшої передачі клієнту.</p></td></tr><tr class=""><td class="confluenceTd"><p><strong>Альтернативний сценарій (Alternative Flow)</strong></p></td><td class="confluenceTd"><p><strong>A1: Вибір іншого маршруту</strong></p><ol><li>На кроці 6 логіст бачить кілька варіантів маршрутів.</li><li>Логіст обирає альтернативний пункт перетину кордону.</li><li>Система перераховує відстань та вартість.</li><li>Логіст порівнює результати та обирає оптимальний варіант.</li></ol><p><br/></p></td></tr><tr class=""><td class="confluenceTd"><p><strong>Edge Case (нестандартна ситуація)</strong></p></td><td class="confluenceTd"><p><strong>E1: Відсутній прямий маршрут</strong></p><ol><li>Після введення точок система не знаходить прямого маршруту.</li><li>Система пропонує альтернативні варіанти (через інші пункти).</li><li>Логіст обирає один із запропонованих маршрутів.</li><li>Система виконує розрахунок.</li></ol></td></tr><tr class=""><td class="confluenceTd"><p><strong>Помилковий сценарій (Error Flow)</strong></p><p><strong> </strong></p></td><td class="confluenceTd"><p><strong>ER1: Некоректні або неповні дані</strong></p><ol><li>Логіст не заповнює обов’язкові поля або вводить некоректні значення.</li><li>Система не виконує розрахунок.</li><li>Система відображає повідомлення про помилку.</li><li>Логіст виправляє дані.</li><li>Сценарій повертається до кроку 8 основного потоку.</li></ol></td></tr><tr class=""><td class="confluenceTd"><p><strong>Постумови</strong></p></td><td class="confluenceTd"><p>·  Розрахунок вартості виконаний</p><p>·  Логіст має фінальну ціну для клієнта</p><p>·  Дані можуть бути використані повторно або збережені</p></td></tr></tbody></table></div><p><span class="confluence-embedded-file-wrapper confluence-embedded-manual-size"><img class="confluence-embedded-image" draggable="false" height="250" src="attachments/154316295/154316298.png" data-image-src="attachments/154316295/154316298.png" data-unresolved-comment-count="0" data-linked-resource-id="154316298" data-linked-resource-version="1" data-linked-resource-type="attachment" data-linked-resource-default-alias="image-2026-4-15_20-47-49.png" data-base-url="https://confluence.ithillel.com" data-linked-resource-content-type="image/png" data-linked-resource-container-id="154316295" data-linked-resource-container-version="1" alt=""></span></p>
+                    </div>
+
+                                                            <div class="pageSection group">
+                        <div class="pageSectionHeader">
+                            <h2 id="attachments" class="pageSectionTitle">Attachments:</h2>
+                        </div>
+
+                        <div class="greybox" align="left">
+                                                            <img src="images/icons/bullet_blue.gif" height="8" width="8" alt=""/>
+                                <a href="attachments/154316295/154316298.png">image-2026-4-15_20-47-49.png</a> (image/png)
+                                <br/>
+                                                    </div>
+                    </div>
+                    
+                                                      
+                </div>             </div> 
+            <div id="footer" role="contentinfo">
+                <section class="footer-body">
+                    <p>Document generated by Confluence on Apr 29, 2026 12:08</p>
+                    <div id="footer-logo"><a href="https://www.atlassian.com/">Atlassian</a></div>
+                </section>
+            </div>
+        </div>     </body>
+</html>
