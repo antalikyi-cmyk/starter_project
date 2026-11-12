@@ -253,6 +253,8 @@ Never skip step 5 for `PATCH`, `PUT`, `POST` or `DELETE` requests on live listin
 |---|---|
 | `.github/agents/etsy.agent.md` | Etsy agent instructions (single source of truth) |
 | `.claude/agents/etsy.md` | Claude Code subagent wrapper that loads the file above |
+| `.github/agents/etsy-store.agent.md`, `.claude/agents/etsy-store.md` | Store operator agent that changes your shop. See [ETSY-STORE-AGENT.md](ETSY-STORE-AGENT.md) |
+| `scripts/etsy_api.py` | CLI for the Open API (login, auto-refresh, requests with dry run) |
 | `.mcp.json` | Project MCP config (includes the `etsy` server) |
 | `.github/skills/etsy-mcp/SKILL.md`, `.github/prompts/etsy-mcp.prompt.md`, `.github/commands/etsy-mcp.md` | Thin Copilot entry points that defer to the agent file |
 | `.env.example` | Template for credentials and tokens |
