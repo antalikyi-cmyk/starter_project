@@ -1,0 +1,125 @@
+$ErrorActionPreference = 'Stop'
+
+# Load .env from the repo root without overriding variables already set in the environment
+$envFile = Join-Path $PSScriptRoot '..' '.env'
+if (Test-Path $envFile) {
+    foreach ($line in Get-Content $envFile) {
+        if ($line -match '^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*?)\s*$' -and -not $line.TrimStart().StartsWith('#')) {
+            $name = $Matches[1]
+            $value = $Matches[2].Trim('"').Trim("'")
+            if ($value -and -not [Environment]::GetEnvironmentVariable($name)) {
+                [Environment]::SetEnvironmentVariable($name, $value)
+            }
+        }
+    }
+}
+
+$required = @('ETSY_KEYSTRING', 'ETSY_SHARED_SECRET')
+$missing = @()
+foreach ($name in $required) {
+    $envValue = [Environment]::GetEnvironmentVariable($name)
+    if (-not $envValue) {
+        $envValue = [Environment]::GetEnvironmentVariable($name, 'User')
+    }
+    if (-not $envValue) {
+        $missing += $name
+    }
+}
+
+if ($missing.Count -gt 0) {
+    Write-Host 'Missing required Etsy app variables:' -ForegroundColor Yellow
+    $missing | ForEach-Object { Write-Host " - $_" }
+    Write-Host ''
+    Write-Host 'Add them to your environment or .env file before testing live Etsy calls.'
+    exit 1
+}
+
+$key = [Environment]::GetEnvironmentVariable('ETSY_KEYSTRING')
+if (-not $key) { $key = [Environment]::GetEnvironmentVariable('ETSY_KEYSTRING', 'User') }
+$secret = [Environment]::GetEnvironmentVariable('ETSY_SHARED_SECRET')
+if (-not $secret) { $secret = [Environment]::GetEnvironmentVariable('ETSY_SHARED_SECRET', 'User') }
+
+Write-Host 'Etsy app credentials detected.'
+Write-Host "Key prefix: $($key.Substring(0, [Math]::Min(6, $key.Length)))"
+Write-Host "Shared secret prefix: $($secret.Substring(0, [Math]::Min(6, $secret.Length)))"
+
+$accessToken = [Environment]::GetEnvironmentVariable('ETSY_ACCESS_TOKEN')
+if (-not $accessToken) { $accessToken = [Environment]::GetEnvironmentVariable('ETSY_ACCESS_TOKEN', 'User') }
+$refreshToken = [Environment]::GetEnvironmentVariable('ETSY_REFRESH_TOKEN')
+if (-not $refreshToken) { $refreshToken = [Environment]::GetEnvironmentVariable('ETSY_REFRESH_TOKEN', 'User') }
+$shopId = [Environment]::GetEnvironmentVariable('ETSY_SHOP_ID')
+if (-not $shopId) { $shopId = [Environment]::GetEnvironmentVariable('ETSY_SHOP_ID', 'User') }
+
+if (-not $accessToken) {
+    Write-Host ''
+    Write-Host 'OAuth access token is missing.' -ForegroundColor Yellow
+    Write-Host 'This is required to read private Etsy shop data such as current listings and orders.'
+    Write-Host ''
+    Write-Host 'Required OAuth flow:'
+    Write-Host '1. Register a redirect URI in the Etsy app settings.'
+    Write-Host '2. Send the user to https://www.etsy.com/oauth/connect with response_type=code, client_id=<keystring>, redirect_uri=<registered_uri>, and the required scopes.'
+    Write-Host '3. Exchange authorization code for an access token using https://api.etsy.com/v3/public/oauth/token.'
+    Write-Host '4. Save ETSY_ACCESS_TOKEN and ETSY_REFRESH_TOKEN to your environment.'
+
+    $redirect = [Environment]::GetEnvironmentVariable('ETSY_REDIRECT_URI')
+    if (-not $redirect) { $redirect = [Environment]::GetEnvironmentVariable('ETSY_REDIRECT_URI', 'User') }
+    $scopes = [Environment]::GetEnvironmentVariable('ETSY_SCOPES')
+    if (-not $scopes) { $scopes = [Environment]::GetEnvironmentVariable('ETSY_SCOPES', 'User') }
+
+    if ($redirect -and $scopes) {
+        $state = 'etsy-state-' + [Guid]::NewGuid().ToString('N')
+
+        # PKCE: random verifier, S256 challenge, both base64url-encoded without padding
+        $toBase64Url = { param($bytes) [Convert]::ToBase64String($bytes).TrimEnd('=').Replace('+', '-').Replace('/', '_') }
+        $verifierBytes = New-Object byte[] 32
+        [System.Security.Cryptography.RandomNumberGenerator]::Fill($verifierBytes)
+        $verifier = & $toBase64Url $verifierBytes
+        $challenge = & $toBase64Url ([System.Security.Cryptography.SHA256]::HashData([Text.Encoding]::ASCII.GetBytes($verifier)))
+        $oauthUrl = "https://www.etsy.com/oauth/connect?response_type=code&client_id=$key&redirect_uri=$([System.Uri]::EscapeDataString($redirect))&scope=$([System.Uri]::EscapeDataString($scopes))&state=$state&code_challenge=$([System.Uri]::EscapeDataString($challenge))&code_challenge_method=S256"
+        Write-Host ''
+        Write-Host "Authorization URL: $oauthUrl"
+        Write-Host ''
+        Write-Host "State (must match the redirect): $state"
+        Write-Host "PKCE code_verifier (needed for the token exchange): $verifier"
+        Write-Host 'Exchange the returned code with: POST https://api.etsy.com/v3/public/oauth/token'
+        Write-Host '  grant_type=authorization_code, client_id, redirect_uri, code, code_verifier'
+    }
+
+    exit 2
+}
+
+$headers = @{
+    'x-api-key' = "$($key):$($secret)"
+    'Authorization' = "Bearer $accessToken"
+    'User-Agent' = 'Etsy-MCP-Validation'
+}
+
+Write-Host ''
+Write-Host 'Attempting authenticated request to Etsy...' -ForegroundColor Green
+
+try {
+    if (-not $shopId) {
+        $result = Invoke-RestMethod -Method Get -Uri 'https://api.etsy.com/v3/application/users/me' -Headers $headers -ErrorAction Stop
+        Write-Host 'Authenticated user request succeeded.'
+        $result | ConvertTo-Json -Depth 10 | Write-Output
+    }
+    else {
+        $listings = Invoke-RestMethod -Method Get -Uri "https://api.etsy.com/v3/application/shops/$shopId/listings?limit=5" -Headers $headers -ErrorAction Stop
+        $receipts = Invoke-RestMethod -Method Get -Uri "https://api.etsy.com/v3/application/shops/$shopId/receipts?limit=5" -Headers $headers -ErrorAction Stop
+
+        Write-Host 'Current Etsy items and orders retrieved successfully.'
+        Write-Host 'Listings:'
+        $listings | ConvertTo-Json -Depth 10 | Write-Output
+        Write-Host 'Receipts:'
+        $receipts | ConvertTo-Json -Depth 10 | Write-Output
+    }
+}
+catch {
+    Write-Host 'Authenticated Etsy request failed.' -ForegroundColor Red
+    Write-Host $_.Exception.Message
+    if ($_.Exception.Response) {
+        $reader = New-Object System.IO.StreamReader($_.Exception.Response.GetResponseStream())
+        $reader.ReadToEnd() | Write-Output
+    }
+    exit 3
+}
